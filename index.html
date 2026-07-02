@@ -6,143 +6,297 @@
 <title>Wall of Shame</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
 :root {
-  --bg: #0a0a0a;
-  --surface: #141414;
-  --surface2: #1e1e1e;
-  --border: #2a2a2a;
-  --red: #dc2626;
-  --red-glow: rgba(220, 38, 38, 0.25);
-  --gold: #f59e0b;
-  --gold-glow: rgba(245, 158, 11, 0.25);
-  --text: #e5e5e5;
+  --bg: #080808;
+  --surface: #111;
+  --surface2: #1a1a1a;
+  --border: #222;
+  --crimson: #e11d48;
+  --crimson-dim: rgba(225, 29, 72, 0.15);
+  --crimson-glow: rgba(225, 29, 72, 0.3);
+  --gold: #fbbf24;
+  --gold-glow: rgba(251, 191, 36, 0.3);
+  --text: #f0f0f0;
   --text-dim: #6b7280;
+  --text-muted: #4b5563;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
-  background-image: radial-gradient(ellipse at 20% 50%, rgba(220,38,38,0.03) 0%, transparent 60%),
-                    radial-gradient(ellipse at 80% 20%, rgba(245,158,11,0.02) 0%, transparent 50%);
+  overflow-x: hidden;
+  position: relative;
 }
-h1, h2, h3 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.06em; }
-code, .mono { font-family: 'JetBrains Mono', monospace; }
-.glow-red { box-shadow: 0 0 20px var(--red-glow); }
-.glow-gold { box-shadow: 0 0 20px var(--gold-glow); }
-.glow-red:hover { box-shadow: 0 0 35px var(--red-glow); }
-.glow-gold:hover { box-shadow: 0 0 35px var(--gold-glow); }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  pointer-events: none;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at 30% 0%, rgba(225, 29, 72, 0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 100%, rgba(225, 29, 72, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+h1, h2, h3 { font-family: 'Bungee', sans-serif; letter-spacing: 0.04em; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  transition: border-color 0.2s;
+  position: relative;
+  transition: border-color 0.3s;
 }
-.card:hover { border-color: rgba(220,38,38,0.3); }
-.line-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card:hover { border-color: rgba(225, 29, 72, 0.25); }
+.card::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 24px; right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(225, 29, 72, 0.3), transparent);
+}
+
+.btn {
+  position: relative;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s;
+  letter-spacing: 0.02em;
+}
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+.btn-primary {
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  box-shadow: 0 0 24px rgba(225, 29, 72, 0.35);
+  transform: translateY(-1px);
+}
+.btn-claim {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #000;
+}
+.btn-claim:hover:not(:disabled) {
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.35);
+  transform: translateY(-1px);
+}
+
+.input-field {
+  width: 100%;
+  padding: 14px 48px 14px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.input-field:focus {
+  border-color: rgba(225, 29, 72, 0.5);
+  box-shadow: 0 0 16px rgba(225, 29, 72, 0.08);
+}
+.input-field::placeholder { color: var(--text-muted); }
+
 .toast {
   position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-  padding: 14px 24px; border-radius: 10px; font-size: 14px;
+  padding: 14px 24px; font-size: 14px; font-family: 'JetBrains Mono', monospace;
   max-width: 420px; transform: translateY(120%); opacity: 0;
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   border: 1px solid;
 }
 .toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { background: #0f2e1a; border-color: #22c55e; color: #86efac; }
-.toast.error { background: #2e0f0f; border-color: #ef4444; color: #fca5a5; }
-.toast.info { background: #0f1b2e; border-color: #3b82f6; color: #93c5fd; }
-.msg-enter { animation: msgFade 0.3s ease-out both; }
-@keyframes msgFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.countdown-pulse { animation: pulse 2s ease-in-out infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-.btn { border-radius: 8px; font-weight: 600; transition: all 0.2s; cursor: pointer; border: none; font-family: inherit; }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.toast.success { background: #0a1f12; border-color: #22c55e; color: #86efac; }
+.toast.error { background: #1f0a0a; border-color: #ef4444; color: #fca5a5; }
+.toast.info { background: #0a0f1f; border-color: #3b82f6; color: #93c5fd; }
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9998;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--surface);
+  border: 1px solid rgba(225, 29, 72, 0.3);
+  max-width: 460px; width: 90%;
+  padding: 32px;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.modal-overlay.active .modal-box { transform: scale(1) translateY(0); }
+
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.msg-item { animation: msgIn 0.35s ease-out both; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.pulse { animation: pulse 2s ease-in-out infinite; }
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 8px var(--crimson-glow); }
+  50% { box-shadow: 0 0 20px var(--crimson-glow); }
+}
+.glow-animate { animation: glowPulse 2s ease-in-out infinite; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
 </style>
 </head>
 <body>
 
 <div id="toast" class="toast"></div>
 
-<div class="max-w-2xl mx-auto px-4 py-6">
+<!-- Tweet Modal -->
+<div id="tweetModal" class="modal-overlay">
+  <div class="modal-box text-center">
+    <div class="text-3xl mb-3">📢</div>
+    <h2 class="text-lg mb-2" style="color: var(--crimson);">Spread the Word</h2>
+    <p class="text-sm mb-6" style="color: var(--text-dim); line-height: 1.6;">
+      Your message is on-chain forever!<br>
+      Share it and tell the world about the Wall of Shame.
+    </p>
+    <a id="tweetLink" href="#" target="_blank" rel="noopener"
+       class="btn btn-primary inline-flex items-center gap-2 px-6 py-3 text-sm rounded-sm mb-3 no-underline"
+       onclick="closeTweetModal()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Share on X
+    </a>
+    <br>
+    <button onclick="closeTweetModal()" class="text-xs mono" style="color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 8px;">
+      No thanks, close
+    </button>
+  </div>
+</div>
+
+<div class="max-w-2xl mx-auto px-5 py-8">
+
   <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
+  <div class="flex items-start justify-between mb-10 gap-4">
     <div>
-      <h1 class="text-5xl tracking-wider" style="color: var(--red); text-shadow: 0 0 30px rgba(220,38,38,0.3);">WALL OF SHAME</h1>
-      <p class="text-xs tracking-widest uppercase mt-1" style="color: var(--text-dim);">a place for fools and their fees</p>
+      <h1 class="text-5xl md:text-6xl leading-tight" style="color: var(--crimson); text-shadow: 0 0 40px rgba(225, 29, 72, 0.25); -webkit-text-stroke: 1px rgba(225, 29, 72, 0.15);">
+        WALL OF<br>SHAME
+      </h1>
+      <p class="mono text-xs tracking-[0.2em] uppercase mt-2" style="color: var(--text-muted);">a place for fools and their fees</p>
     </div>
-    <button id="connectBtn" class="btn px-5 py-2.5 text-sm" style="background: var(--red); color: #fff;" onclick="connectWallet()">
+    <button id="connectBtn" class="btn btn-primary px-5 py-2.5 text-xs rounded-sm shrink-0" onclick="connectWallet()">
       Connect Wallet
     </button>
   </div>
 
   <!-- Current Message -->
-  <div class="card p-6 mb-5">
-    <div class="flex items-center gap-2 mb-4">
-      <span class="w-2.5 h-2.5 rounded-full" style="background: var(--red); box-shadow: 0 0 8px var(--red-glow);"></span>
-      <h2 class="text-xl tracking-widest" style="color: var(--red);">Current Message</h2>
+  <div class="card p-6 md:p-8 mb-6">
+    <div class="flex items-center gap-2.5 mb-5">
+      <span class="w-2 h-2 rounded-sm glow-animate" style="background: var(--crimson);"></span>
+      <h2 class="text-sm tracking-[0.15em] uppercase" style="color: var(--crimson);">Current Message</h2>
     </div>
 
-    <div id="noMessage" class="text-center py-8">
-      <p class="text-lg" style="color: var(--text-dim);">No messages yet. Be the first fool.</p>
+    <div id="noMessage" class="text-center py-10">
+      <div class="text-3xl mb-3 opacity-30">╲╱</div>
+      <p class="mono text-sm" style="color: var(--text-dim);">No messages yet. Be the first fool.</p>
     </div>
 
     <div id="messageDisplay" class="hidden">
-      <div class="flex items-start gap-4">
-        <div class="flex-1 min-w-0">
-          <p id="msgText" class="text-xl font-semibold leading-tight mb-3 line-clamp" style="color: var(--text);"></p>
-          <div class="flex flex-wrap gap-x-6 gap-y-1.5 text-sm mono">
-            <span style="color: var(--text-dim);">by <span id="msgAuthor" style="color: var(--red);"></span></span>
-            <span style="color: var(--text-dim);">posted <span id="msgTimeAgo"></span></span>
-          </div>
-        </div>
+      <div id="msgText" class="text-xl md:text-2xl font-semibold leading-relaxed mb-4" style="color: var(--text); word-break: break-word;">
       </div>
-      <div class="mt-4 pt-4 flex items-center justify-between flex-wrap gap-3" style="border-top: 1px solid var(--border);">
+      <div class="flex flex-wrap gap-x-6 gap-y-1.5 mono text-xs mb-6" style="color: var(--text-dim);">
+        <span>by <span id="msgAuthor" style="color: var(--crimson);"></span></span>
+        <span>posted <span id="msgTimeAgo"></span></span>
+      </div>
+      <div class="pt-5 flex items-center justify-between flex-wrap gap-4" style="border-top: 1px solid var(--border);">
         <div>
-          <span class="text-xs uppercase tracking-widest" style="color: var(--text-dim);">reward pool</span>
-          <p id="rewardPoolDisplay" class="text-lg font-bold" style="color: var(--gold); text-shadow: 0 0 20px var(--gold-glow);">0 ETH</p>
+          <span class="mono text-[10px] tracking-[0.15em] uppercase" style="color: var(--text-muted);">reward pool</span>
+          <p id="rewardPoolDisplay" class="text-xl font-bold mt-0.5" style="color: var(--gold); text-shadow: 0 0 20px var(--gold-glow);">0 ETH</p>
         </div>
-        <button id="claimBtn" class="btn px-5 py-2.5 text-sm hidden" style="background: var(--gold); color: #000;" onclick="claimReward()">
-          Claim Reward
-        </button>
-        <div id="countdownDisplay" class="text-xs mono" style="color: var(--text-dim);"></div>
+        <div class="flex items-center gap-4">
+          <div id="countdownDisplay" class="mono text-xs" style="color: var(--text-dim);"></div>
+          <button id="claimBtn" class="btn btn-claim px-5 py-2.5 text-xs rounded-sm hidden" onclick="claimReward()">
+            Claim Reward
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Post Message -->
-  <div class="card p-6 mb-5">
-    <div class="flex items-center gap-2 mb-4">
-      <span class="w-2.5 h-2.5 rounded-full" style="background: var(--gold); box-shadow: 0 0 8px var(--gold-glow);"></span>
-      <h2 class="text-xl tracking-widest" style="color: var(--gold);">Post Your Shame</h2>
+  <div class="card p-6 md:p-8 mb-6">
+    <div class="flex items-center gap-2.5 mb-5">
+      <span class="w-2 h-2" style="background: var(--gold); box-shadow: 0 0 8px var(--gold-glow);"></span>
+      <h2 class="text-sm tracking-[0.15em] uppercase" style="color: var(--gold);">Post Your Shame</h2>
     </div>
 
-    <div class="flex gap-3">
-      <div class="flex-1 relative">
-        <input id="messageInput" type="text" maxlength="32" placeholder="Enter your message..." 
-               class="w-full px-4 py-3 rounded-lg text-sm mono"
-               style="background: var(--surface2); border: 1px solid var(--border); color: var(--text); outline: none;"
-               oninput="updateCharCount()" onkeydown="if(event.key==='Enter') postMessage()">
-        <span id="charCount" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs mono" style="color: var(--text-dim);">0/32</span>
-      </div>
+    <div class="relative">
+      <input id="messageInput" type="text" maxlength="32" placeholder="Enter your message..." 
+             class="input-field rounded-sm"
+             oninput="updateCharCount()" onkeydown="if(event.key==='Enter') postMessage()">
+      <span id="charCount" class="mono text-xs absolute right-4 top-1/2 -translate-y-1/2" style="color: var(--text-muted);">0/32</span>
     </div>
 
-    <button id="postBtn" class="btn w-full mt-3 px-5 py-3 text-sm uppercase tracking-widest" style="background: var(--red); color: #fff;" onclick="postMessage()">
+    <button id="postBtn" class="btn btn-primary w-full mt-4 px-6 py-3.5 text-xs rounded-sm tracking-[0.15em] uppercase" onclick="postMessage()">
       Post for <span id="postFeeDisplay">...</span> ETH
     </button>
   </div>
 
   <!-- Recent Messages -->
-  <div class="card p-6">
-    <div class="flex items-center gap-2 mb-4">
-      <span class="w-2.5 h-2.5 rounded-full" style="background: #6b7280;"></span>
-      <h2 class="text-xl tracking-widest" style="color: var(--text-dim);">Recent Messages</h2>
+  <div class="card p-6 md:p-8">
+    <div class="flex items-center gap-2.5 mb-5">
+      <span class="w-2 h-2 rounded-full" style="background: #444;"></span>
+      <h2 class="text-sm tracking-[0.15em] uppercase" style="color: var(--text-dim);">Recent Messages</h2>
     </div>
-    <div id="recentMessages">
-      <p class="text-sm" style="color: var(--text-dim);">Connect wallet to load history.</p>
+    <div id="recentMessages" style="max-height: 360px; overflow-y: auto;">
+      <p class="mono text-sm" style="color: var(--text-dim);">Connect wallet to load history.</p>
     </div>
+  </div>
+
+  <!-- How It Works -->
+  <div class="card p-6 md:p-8 mb-6">
+    <div class="flex items-center gap-2.5 mb-5">
+      <span class="w-2 h-2" style="background: #444; box-shadow: 0 0 6px rgba(255,255,255,0.1);"></span>
+      <h2 class="text-sm tracking-[0.15em] uppercase" style="color: var(--text-dim);">How It Works</h2>
+    </div>
+    <div class="space-y-3 text-sm leading-relaxed" style="color: var(--text-dim);">
+      <p><span style="color: var(--crimson);">1.</span> Pay a fixed fee to post a short message (&le;32 chars) on-chain.</p>
+      <p><span style="color: var(--crimson);">2.</span> Your message overwrites the previous one — <strong style="color: var(--text);">they lose their fee</strong>, no refund.</p>
+      <p><span style="color: var(--crimson);">3.</span> <span style="color: var(--gold);">93%</span> of every fee goes to the <span style="color: var(--gold);">reward pool</span>, <span style="color: var(--crimson);">7%</span> to the dev.</p>
+      <p><span style="color: var(--crimson);">4.</span> If your message stands unchallenged for the full delay — <span style="color: var(--gold);">claim the entire pool</span>.</p>
+      <p><span style="color: var(--crimson);">5.</span> The message stays forever. A new post starts the game again.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="mt-8 text-center mono text-[10px] tracking-[0.15em] uppercase" style="color: var(--text-muted);">
+    made by <a href="https://x.com/ChainZenit" target="_blank" rel="noopener" style="color: var(--crimson);">@ChainZenit</a> &middot; powered by Base
   </div>
 </div>
 
@@ -151,6 +305,8 @@ code, .mono { font-family: 'JetBrains Mono', monospace; }
 const CONTRACT_ADDRESS = "0xEeD4E802912e1D7eB6CE51409f9c99D20F82Ed6a";
 const BASE_CHAIN_ID = "0x2105";
 const BASE_RPC = "https://mainnet.base.org";
+const SITE_URL = "https://podzemniytip.github.io/wall-of-shame/";
+const CREATOR_HANDLE = "ChainZenit";
 
 const ABI = [
   "function postMessage(string memory message) payable",
@@ -169,6 +325,7 @@ const ABI = [
 // ─── STATE ─────────────────────────────────────────────────
 let provider, signer, contract, signerAddress;
 let countdownInterval;
+let lastPostedMessage = "";
 
 // ─── TOAST ─────────────────────────────────────────────────
 function toast(msg, type = "info") {
@@ -177,6 +334,21 @@ function toast(msg, type = "info") {
   el.className = "toast " + type + " show";
   clearTimeout(el._hide);
   el._hide = setTimeout(() => el.classList.remove("show"), 4000);
+}
+
+// ─── TWEET MODAL ──────────────────────────────────────────
+function openTweetModal() {
+  const text = [
+    "I just posted on the Wall of Shame 🔥",
+    "Put your message on-chain and win the reward pool!",
+    `Made by @${CREATOR_HANDLE}`
+  ].join("%0A%0A");
+  const url = `https://x.com/intent/tweet?text=${text}&url=${encodeURIComponent(SITE_URL)}`;
+  document.getElementById("tweetLink").href = url;
+  document.getElementById("tweetModal").classList.add("active");
+}
+function closeTweetModal() {
+  document.getElementById("tweetModal").classList.remove("active");
 }
 
 // ─── WALLET ────────────────────────────────────────────────
@@ -212,7 +384,6 @@ async function connectWallet() {
     signerAddress = await signer.getAddress();
     contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
     document.getElementById("connectBtn").textContent = shorten(signerAddress);
-    document.getElementById("connectBtn").style.opacity = "0.7";
     toast("Wallet connected.", "success");
     await loadCurrentMessage();
     await loadRecentMessages();
@@ -257,7 +428,6 @@ async function loadCurrentMessage() {
   try {
     const [author, message, timestamp, pool, fee] = await contract.getCurrentMessage();
     const postFee = await contract.postFee();
-
     document.getElementById("postFeeDisplay").textContent = ethers.formatEther(postFee);
 
     if (author === ethers.ZeroAddress || !message) {
@@ -268,46 +438,36 @@ async function loadCurrentMessage() {
 
     document.getElementById("noMessage").classList.add("hidden");
     document.getElementById("messageDisplay").classList.remove("hidden");
-
-    document.getElementById("msgText").textContent = '"' + message + '"';
+    document.getElementById("msgText").textContent = message;
     document.getElementById("msgAuthor").textContent = shorten(author);
     document.getElementById("rewardPoolDisplay").textContent = ethers.formatEther(pool) + " ETH";
-
-    const now = Math.floor(Date.now() / 1000);
-    document.getElementById("msgTimeAgo").textContent = timeAgo(timestamp);
 
     const delay = Number(await contract.rewardDelay());
     const isAuthor = signerAddress && signerAddress.toLowerCase() === author.toLowerCase();
 
     const claimBtn = document.getElementById("claimBtn");
     const cdDisplay = document.getElementById("countdownDisplay");
-
     if (countdownInterval) clearInterval(countdownInterval);
 
     function updateCountdown() {
-      const now2 = Math.floor(Date.now() / 1000);
-      const remaining2 = Number(timestamp) + delay - now2;
-      const elapsed2 = now2 - Number(timestamp);
+      const now = Math.floor(Date.now() / 1000);
+      const remaining = Number(timestamp) + delay - now;
       document.getElementById("msgTimeAgo").textContent = timeAgo(timestamp);
 
-      if (remaining2 <= 0) {
+      if (remaining <= 0) {
         cdDisplay.textContent = "Reward available!";
         cdDisplay.style.color = "var(--gold)";
-        if (isAuthor) {
-          claimBtn.classList.remove("hidden");
-        } else {
-          claimBtn.classList.add("hidden");
-        }
+        cdDisplay.className = "mono text-xs pulse";
+        claimBtn.classList.toggle("hidden", !isAuthor);
       } else {
-        cdDisplay.textContent = formatDuration(Math.max(0, remaining2));
+        cdDisplay.textContent = formatDuration(Math.max(0, remaining));
         cdDisplay.style.color = "var(--text-dim)";
+        cdDisplay.className = "mono text-xs";
         claimBtn.classList.add("hidden");
       }
     }
-
     updateCountdown();
     countdownInterval = setInterval(updateCountdown, 1000);
-
   } catch (e) {
     console.error(e);
   }
@@ -328,13 +488,15 @@ async function postMessage() {
   try {
     const fee = await contract.postFee();
     const tx = await contract.postMessage(msg, { value: fee });
-    toast("Transaction submitted. Waiting for confirmation...", "info");
+    toast("Transaction submitted. Waiting...", "info");
     await tx.wait();
     toast("Message posted! You are now the current fool.", "success");
     input.value = "";
     updateCharCount();
     await loadCurrentMessage();
     await loadRecentMessages();
+    lastPostedMessage = msg;
+    openTweetModal();
   } catch (e) {
     if (e.code === 4001) toast("Transaction rejected.", "error");
     else toast(e.message || "Post failed.", "error");
@@ -353,7 +515,7 @@ async function claimReward() {
 
   try {
     const tx = await contract.claimReward();
-    toast("Claim submitted. Waiting for confirmation...", "info");
+    toast("Claim submitted. Waiting...", "info");
     await tx.wait();
     toast("Reward claimed! You are the last hero.", "success");
     await loadCurrentMessage();
@@ -373,21 +535,21 @@ async function loadRecentMessages() {
     const filter = contract.filters.MessagePosted();
     const events = await contract.queryFilter(filter, -5000, "latest");
     const recent = events.slice(-20).reverse();
-
     const container = document.getElementById("recentMessages");
+
     if (recent.length === 0) {
-      container.innerHTML = '<p class="text-sm" style="color: var(--text-dim);">No messages yet.</p>';
+      container.innerHTML = '<p class="mono text-sm" style="color: var(--text-dim);">No messages yet.</p>';
       return;
     }
 
     container.innerHTML = recent.map((e, i) => {
-      const { author, message, timestamp, feePaid } = e.args;
-      return `<div class="msg-enter flex items-center justify-between py-2.5 ${i > 0 ? '' : ''}" style="${i > 0 ? 'border-top: 1px solid var(--border);' : ''}">
+      const { author, message, timestamp } = e.args;
+      return `<div class="msg-item flex items-center justify-between py-3 ${i > 0 ? '' : ''}" style="${i > 0 ? 'border-top: 1px solid var(--border);' : ''} animation-delay: ${i * 0.04}s">
         <div class="flex-1 min-w-0 mr-4">
-          <span class="mono text-xs" style="color: var(--red);">${shorten(author)}</span>
-          <span class="text-sm ml-2" style="color: var(--text);">${message}</span>
+          <span class="mono text-xs" style="color: var(--crimson);">${shorten(author)}</span>
+          <span class="text-sm ml-2.5" style="color: var(--text);">${message}</span>
         </div>
-        <span class="mono text-xs whitespace-nowrap" style="color: var(--text-dim);">${timeAgo(timestamp)}</span>
+        <span class="mono text-xs whitespace-nowrap" style="color: var(--text-muted);">${timeAgo(timestamp)}</span>
       </div>`;
     }).join("");
   } catch (e) {
@@ -401,19 +563,17 @@ function updateCharCount() {
   const count = el.value.length;
   const display = document.getElementById("charCount");
   display.textContent = count + "/32";
-  display.style.color = count > 28 ? "var(--red)" : count > 24 ? "var(--gold)" : "var(--text-dim)";
+  display.style.color = count > 28 ? "var(--crimson)" : count > 24 ? "var(--gold)" : "var(--text-muted)";
 }
 
-// ─── AUTO-CONNECT ─────────────────────────────────────────
+// ─── INIT ─────────────────────────────────────────────────
 window.addEventListener("load", async () => {
   if (window.ethereum) {
     const accounts = await window.ethereum.request({ method: "eth_accounts" });
-    if (accounts.length > 0) {
-      await connectWallet();
-    }
+    if (accounts.length > 0) await connectWallet();
   }
-  window.ethereum?.on("accountsChanged", () => { location.reload(); });
-  window.ethereum?.on("chainChanged", () => { location.reload(); });
+  window.ethereum?.on("accountsChanged", () => location.reload());
+  window.ethereum?.on("chainChanged", () => location.reload());
 });
 </script>
 </body>
