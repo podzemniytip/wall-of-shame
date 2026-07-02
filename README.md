@@ -69,6 +69,12 @@ The ABI is already embedded in `index.html` as a minimal array. If you add or re
 
 Simply double-click `index.html` or open it in a browser. MetaMask will prompt you to connect and switch to Base.
 
+## Live Site (jsDelivr CDN — instant, no build queue)
+
+**https://cdn.jsdelivr.net/gh/podzemniytip/wall-of-shame@gh-pages/index.html**
+
+GitHub Pages is experiencing deployment delays. The jsDelivr URL above serves the latest code from the `gh-pages` branch immediately after each push.
+
 ## Running Locally
 
 No build tools are needed. The page loads Tailwind CSS and ethers.js from CDN. Just open `index.html` in any modern browser with MetaMask installed.
