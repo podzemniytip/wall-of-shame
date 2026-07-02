@@ -1,0 +1,12 @@
+node_modules/
+_build.json
+_compile.js
+_deploy.js
+_test.js
+_getAddress.js
+_checkBalance.js
+_checkBoth.js
+_checkTx.js
+privatekey.txt
+package.json
+package-lock.json
