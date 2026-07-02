@@ -326,6 +326,7 @@ const ABI = [
 let provider, signer, contract, signerAddress;
 let countdownInterval;
 let lastPostedMessage = "";
+let switchingChain = false;
 
 // ─── TOAST ─────────────────────────────────────────────────
 function toast(msg, type = "info") {
@@ -359,6 +360,7 @@ async function connectWallet() {
     await provider.send("eth_requestAccounts", []);
     const network = await provider.getNetwork();
     if (Number(network.chainId) !== 8453) {
+      switchingChain = true;
       try {
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
@@ -378,7 +380,9 @@ async function connectWallet() {
           });
         } else throw e;
       }
+      await new Promise(r => setTimeout(r, 1000));
       provider = new ethers.BrowserProvider(window.ethereum);
+      switchingChain = false;
     }
     signer = await provider.getSigner();
     signerAddress = await signer.getAddress();
@@ -569,11 +573,15 @@ function updateCharCount() {
 // ─── INIT ─────────────────────────────────────────────────
 window.addEventListener("load", async () => {
   if (window.ethereum) {
-    const accounts = await window.ethereum.request({ method: "eth_accounts" });
-    if (accounts.length > 0) await connectWallet();
+    try {
+      const accounts = await window.ethereum.request({ method: "eth_accounts" });
+      if (accounts.length > 0) await connectWallet();
+    } catch (_) {}
   }
   window.ethereum?.on("accountsChanged", () => location.reload());
-  window.ethereum?.on("chainChanged", () => location.reload());
+  window.ethereum?.on("chainChanged", () => {
+    if (!switchingChain) location.reload();
+  });
 });
 </script>
 </body>
